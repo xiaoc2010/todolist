@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>防火墙策略需求录入系统</title>
+    <script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
+    <style>
+        /* 基础样式 */
+        :root {
+            --primary-color: #666666;
+            --border-color: #e0e0e0;
+            --bg-color: #f5f5f5;
+            --text-color: #333333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "DengXian Light", "等线 Light", sans-serif;
+        }
+
+        body {
+            background: var(--bg-color);
+        }
+
+        /* 主标题 */
+        .main-title {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            font-size: 1.6rem;
+            margin-bottom: 1rem;
+        }
+
+        /* 容器布局 */
+        .container {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem;
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+
+        /* 表单区域 */
+        .form-section {
+            flex: 1;
+            min-width: 500px;
+            max-width: 600px;
+            background: white;
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+        }
+
+        /* 表单组样式 - 单列显示 */
+        .form-group {
+            display: flex;
+            width: 100%;
+            margin-bottom: 0.5rem;
+            padding: 0.3rem;
+            border: 1px solid var(--border-color);
+            background: white;
+        }
+
+        label {
+            width: 120px;
+            font-size: 0.85rem;
+            color: var(--text-color);
+            margin-right: 0.5rem;
+        }
+
+        input, select, textarea {
+            flex: 1;
+            padding: 0.3rem;
+            border: 1px solid var(--border-color);
+            font-size: 0.85rem;
+        }
+
+        .fixed-field {
+            background-color: #f8f9fa;
+            color: #666;
+        }
+
+        /* 列表区域 */
+        .list-section {
+            flex: 1;
+            min-width: 500px;
+            background: white;
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+        }
+
+        /* 按钮样式 */
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.4rem 0.8rem;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        /* 策略列表 */
+        .policy-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 0.5rem;
+        }
+
+        .policy-table td {
+            padding: 0.4rem;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.85rem;
+        }
+
+        /* 导出标记 */
+        .exported-mark {
+            width: 16px;
+            height: 16px;
+            border: 1px solid var(--primary-color);
+            display: inline-block;
+            position: relative;
+        }
+
+        .exported-mark.checked::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--primary-color);
+            font-size: 12px;
+        }
+
+        /* 列表操作区 */
+        .list-actions {
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        h2 {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+    </style>
+</head>
+<body>
+    <h1 class="main-title">防火墙策略需求录入系统</h1>
+    
+    <div class="container">
+        <!-- 左侧表单部分 -->
+        <section class="form-section">
+            <h2>策略需求录入</h2>
+            <form id="firewallForm">
+                <div class="form-group">
+                    <label for="id">ID：</label>
+                    <input type="text" id="id" name="id" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="requirementName">需求名称：</label>
+                    <input type="text" id="requirementName" name="requirementName" required>
+                </div>
+
+                <div class="form-group">
+                    <label>拓扑：</label>
+                    <input type="text" value="阳江测试" readonly class="fixed-field">
+                </div>
+
+                <div class="form-group">
+                    <label for="sourceIP">源地址：</label>
+                    <input type="text" id="sourceIP" name="sourceIP" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="sourceIPNote">源地址备注：</label>
+                    <input type="text" id="sourceIPNote" name="sourceIPNote">
+                </div>
+
+                <div class="form-group">
+                    <label>源端口：</label>
+                    <input type="text" value="Any" readonly class="fixed-field">
+                </div>
+
+                <div class="form-group">
+                    <label for="destIP">目的地址：</label>
+                    <input type="text" id="destIP" name="destIP" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="destIPNote">目的地址备注：</label>
+                    <input type="text" id="destIPNote" name="destIPNote">
+                </div>
+
+                <div class="form-group">
+                    <label for="port">端口：</label>
+                    <input type="text" id="port" name="port" required>
+                </div>
+
+                <div class="form-group">
+                    <label>动作：</label>
+                    <input type="text" value="pass" readonly class="fixed-field">
+                </div>
+
+                <div class="form-group">
+                    <label>开始时间：</label>
+                    <input type="text" value="2024/9/12" readonly class="fixed-field">
+                </div>
+
+                <div class="form-group">
+                    <label>结束时间：</label>
+                    <input type="text" value="2099/9/9" readonly class="fixed-field">
+                </div>
+
+                <div class="form-group">
+                    <label for="department">责任部门：</label>
+                    <input type="text" id="department" name="department" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="manager">负责人：</label>
+                    <input type="text" id="manager" name="manager" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="applicant">申请人：</label>
+                    <input type="text" id="applicant" name="applicant" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">描述：</label>
+                    <textarea id="description" name="description"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="effectiveTime">生效时间：</label>
+                    <input type="datetime-local" id="effectiveTime" name="effectiveTime" required>
+                </div>
+
+                <button type="submit">保存</button>
+            </form>
+        </section>
+
+        <!-- 右侧策略列表部分 -->
+        <section class="list-section">
+            <h2>策略列表</h2>
+            <div class="list-actions">
+                <button type="button" id="exportSelectedBtn">导出选中</button>
+                <button type="button" id="exportAllBtn">导出全部</button>
+            </div>
+            <div class="policy-table-container">
+                <table class="policy-table">
+                    <tbody id="policyTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('firewallForm');
+            const policyTableBody = document.getElementById('policyTableBody');
+            let records = [];
+
+            // 表单提交处理
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const record = {
+                    id: form.id.value,
+                    requirementName: form.requirementName.value,
+                    topology: '阳江测试',
+                    sourceIP: form.sourceIP.value,
+                    sourceIPNote: form.sourceIPNote.value,
+                    sourcePort: 'Any',
+                    destIP: form.destIP.value,
+                    destIPNote: form.destIPNote.value,
+                    port: form.port.value.startsWith('TCP_') ? form.port.value : 'TCP_' + form.port.value,
+                    action: 'pass',
+                    startTime: '2024/9/12',
+                    endTime: '2099/9/9',
+                    department: form.department.value,
+                    manager: form.manager.value,
+                    applicant: form.applicant.value,
+                    description: form.description.value,
+                    effectiveTime: form.effectiveTime.value
+                };
+                
+                records.push(record);
+                updatePolicyTable();
+                form.reset();
+            });
+
+            // 更新策略列表显示
+            function updatePolicyTable() {
+                policyTableBody.innerHTML = '';
+                records.forEach((record, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>
+                            <input type="checkbox" class="policy-checkbox" data-index="${index}">
+                        </td>
+                        <td>
+                            <div class="exported-mark ${record.exported ? 'checked' : ''}"></div>
+                        </td>
+                        <td>${record.id}</td>
+                        <td>${record.requirementName}</td>
+                        <td>${record.sourceIP}</td>
+                        <td>${record.destIP}</td>
+                        <td>${record.port}</td>
+                        <td>
+                            <button class="delete-btn" onclick="deletePolicy(${index})">删除</button>
+                        </td>
+                    `;
+                    policyTableBody.appendChild(row);
+                });
+            }
+
+            // 删除策略
+            window.deletePolicy = function(index) {
+                records.splice(index, 1);
+                updatePolicyTable();
+            };
+
+            // 导出功能
+            document.getElementById('exportAllBtn').addEventListener('click', function() {
+                if (records.length === 0) {
+                    alert('没有可导出的策略');
+                    return;
+                }
+                exportToExcel(records, 'all');
+            });
+
+            document.getElementById('exportSelectedBtn').addEventListener('click', function() {
+                const selectedIndexes = Array.from(document.querySelectorAll('.policy-checkbox:checked'))
+                    .map(checkbox => parseInt(checkbox.dataset.index));
+                
+                if (selectedIndexes.length === 0) {
+                    alert('请选择要导出的策略');
+                    return;
+                }
+
+                const selectedRecords = selectedIndexes.map(index => records[index]);
+                exportToExcel(selectedRecords, 'selected');
+            });
+
+            // Excel导出功能
+            function exportToExcel(records, type = 'all') {
+                const now = new Date();
+                const dateStr = now.getFullYear().toString() +
+                              (now.getMonth() + 1).toString().padStart(2, '0') +
+                              now.getDate().toString().padStart(2, '0');
+
+                const wb = XLSX.utils.book_new();
+                
+                records.forEach(record => {
+                    const headers = [
+                        'ID', '需求名称', '拓扑', '源地址', '源地址备注', 
+                        '源端口', '目的地址', '目的地址备注', '端口', '动作',
+                        '开始时间', '结束时间', '责任部门', '负责人', 
+                        '申请人', '描述', '生效时间'
+                    ];
+
+                    const data = [
+                        record.id, record.requirementName, record.topology,
+                        record.sourceIP, record.sourceIPNote, record.sourcePort,
+                        record.destIP, record.destIPNote, record.port,
+                        record.action, record.startTime, record.endTime,
+                        record.department, record.manager, record.applicant,
+                        record.description, record.effectiveTime
+                    ];
+
+                    const ws = XLSX.utils.aoa_to_sheet([headers, data]);
+                    
+                    let sheetName = `${record.requirementName}_工单_${dateStr}`;
+                    sheetName = sheetName.replace(/[\[\]\*\/\\\?\:]/g, '_').substring(0, 31);
+                    
+                    XLSX.utils.book_append_sheet(wb, ws, sheetName);
+                });
+
+                const fileName = `${records[0].requirementName}_工单_${dateStr}.xlsx`;
+                XLSX.writeFile(wb, fileName);
+
+                records.forEach(record => {
+                    record.exported = true;
+                });
+                updatePolicyTable();
+            }
+        });
+    </script>
+</body>
+</html> 
